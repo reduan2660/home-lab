@@ -115,5 +115,5 @@ curl https://raw.githubusercontent.com/pivpn/pivpn/master/auto_install/install.s
 
 Pi-vpn is now configured. Great!.
 
-To add a client ``` pivpn add ```. To view qr codes ``` pivpn --qr ```. Config files should be available at ``` ```.
+To add a client ``` pivpn add ```. To view qr codes ``` pivpn --qr ```. Config files should be available at ``` /home/<user>/configs ```.
 Wireguard client can be found here https://www.wireguard.com/install/ .
