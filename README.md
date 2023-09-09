@@ -1,6 +1,7 @@
 # Red Lab
 
 > Got a raspberry-pi
+
 > Set up ubuntu server 22.04 lts
 
 > Getting system up-to-date.
@@ -93,3 +94,26 @@ sudo systemctl status nginx
 Pi-hole should now be available at http://pi.hole and served with nginx. Great!.
 
 - Add blocklist. Custom blocklist can be found at https://firebog.net/ . After updating run `pihole -g` for the updated adlist to take effect.
+
+
+
+## [Pi-VPN](https://docs.pivpn.io/) with wireguard
+
+- Install Pi-vpn
+
+```bash
+sudo su -
+curl https://raw.githubusercontent.com/pivpn/pivpn/master/auto_install/install.sh | bash
+```
+
+- Set vpn to be ```wireguard```.
+- Set port to be ```51820```
+- Set ad blocking with pi-vpn to be on.
+
+- Reboot the system.
+- Add port forwarding from router to port 51820. ![image](https://github.com/reduan2660/home-lab/assets/61122163/90ce87fd-e8f2-416e-b8ed-7e7317ed6122)
+
+Pi-vpn is now configured. Great!.
+
+To add a client ``` pivpn add ```. To view qr codes ``` pivpn --qr ```. Config files should be available at ``` ```.
+Wireguard client can be found here https://www.wireguard.com/install/ .
