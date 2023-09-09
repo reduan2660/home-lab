@@ -26,3 +26,8 @@ symlink
 systemctl
 ufw
 wget
+githubusercontent
+pivpn
+vpn
+wireguard
+www
