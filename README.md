@@ -24,12 +24,12 @@ mkdir apps
 curl -sSL https://install.pi-hole.net | sudo bash
 ```
 
-- Changing the lighthttp server port to 3141
+- Changing the lighttpd server port to 3141
 Open the config file
 ```bash
  sudo vim /etc/lighttpd/lighttpd.conf
 ```
-Channge `server.port = 3141`
+Change `server.port = 3141`
 
 Restart the server
 ```bash
