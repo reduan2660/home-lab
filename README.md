@@ -18,7 +18,7 @@ mkdir apps
 
 ## [Pi-hole](https://github.com/pi-hole/pi-hole/#one-step-automated-install) with nginx
 
-- Addi Dhcp address reservation at 192.168.0.200 for raspberrypi
+- Add Dhcp address reservation at 192.168.0.200 for raspberrypi
 - Install pi-hole
 ```bash
 curl -sSL https://install.pi-hole.net | sudo bash
