@@ -92,4 +92,4 @@ sudo systemctl status nginx
 
 Pi-hole should now be available at http://pi.hole and served with nginx. Great!.
 
-- Add blocklist. Custom blocklist can be found at https://firebog.net/ .
+- Add blocklist. Custom blocklist can be found at https://firebog.net/ . After updating run `pihole -g`{:.bash} for the updated adlist to take effect.
