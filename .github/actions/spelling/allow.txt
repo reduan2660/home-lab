@@ -31,3 +31,4 @@ pivpn
 vpn
 wireguard
 www
+configs
