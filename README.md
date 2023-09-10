@@ -14,6 +14,7 @@
    - [Node Exporter](#node-exporter-installation)
    - [Grafana](#grafana-with-nginx-reverse-proxy)
 5. [Memos](#memos)
+6. [Self-signed certificate for internal services](#self-signed-certificate-for-internal-services)
 
 ## Getting system up-to-date.
 
@@ -294,7 +295,7 @@ server {
     server_name grafana.monitoring;
 
     location / {
-        proxy_pass http://127.0.0.1:3000; # Proxy to port 3141
+        proxy_pass http://127.0.0.1:3000; # Proxy to port 3000
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -419,3 +420,75 @@ server {
 
 Memos should be running at port http://mem.os internally and http://memos.<static-ip/url> externally. And data should be stored at ``` ~/.memos/ ```.
 Great!.
+
+
+## Self-signed certificate for internal services
+
+> This documentaion is a summary of [this great documentation by Digitial Ocean](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-20-04-1).
+
+- Generate certificate.
+```bash
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
+sudo openssl dhparam -out /etc/nginx/dhparam.pem 4096
+```
+
+- Create snippets for nginx.
+Write the following content at ```sudo vim /etc/nginx/snippets/self-signed.conf```.
+```conf
+ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+```
+
+Write the following content at ```sudo vim /etc/nginx/snippets/ssl-params.conf```.
+```conf
+ssl_protocols TLSv1.3;
+ssl_prefer_server_ciphers on;
+ssl_dhparam /etc/nginx/dhparam.pem; 
+ssl_ciphers EECDH+AESGCM:EDH+AESGCM;
+ssl_ecdh_curve secp384r1;
+ssl_session_timeout  10m;
+ssl_session_cache shared:SSL:10m;
+ssl_session_tickets off;
+ssl_stapling on;
+ssl_stapling_verify on;
+resolver 192.168.0.200 valid=300s;
+resolver_timeout 5s;
+# Disable strict transport security for now. You can uncomment the following
+# line if you understand the implications.
+#add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+add_header X-Frame-Options DENY;
+add_header X-Content-Type-Options nosniff;
+add_header X-XSS-Protection "1; mode=block";
+```
+
+- Configure nginx. A sample nginx config will look like this.
+```conf
+server {
+    server_name mem.os;
+
+    location / {
+        proxy_pass http://127.0.0.1:5230; # Proxy to port 5230
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    listen 443 ssl;
+
+    # self-signed certificate
+    include snippets/self-signed.conf;
+    include snippets/ssl-params.conf;
+}
+server {
+    if ($host = mem.os) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    server_name mem.os;
+    return 404; # managed by Certbot
+}
+```
+
+Self-signed certificate is now configured for internal network. Great!.
