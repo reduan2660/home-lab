@@ -118,3 +118,178 @@ Pi-vpn is now configured. Great!.
 
 To add a client ``` pivpn add ```. To view qr codes ``` pivpn -qr ```. Config files should be available at ``` /home/<user>/configs ```.
 Wireguard client can be found here https://www.wireguard.com/install/ .
+
+## Monitoring with Prometheus, Grafana
+> Some great monitoring resources can be found [here](https://github.com/awesome-foss/awesome-sysadmin#monitoring).
+### Prometheus installation
+- Installation
+```bash
+cd ~/Downloads/
+wget https://github.com/prometheus/prometheus/releases/download/v2.37.9/prometheus-2.37.9.linux-armv7.tar.gz
+tar xfz prometheus-2.37.9.linux-armv7.tar.gz
+mv prometheus-2.37.9.linux-armv7/ /prometheus
+rm prometheus-2.37.9.linux-armv7.tar.gz
+
+# Setting up the data directory
+sudo mkdir /prometheus/data
+
+# Setting up a Service for Prometheus
+sudo vi /etc/systemd/system/prometheus.service
+# Insert the code mentioned below in the file
+
+# Start the prometheus server
+sudo systemctl enable prometheus
+sudo systemctl start prometheus
+sudo systemctl status prometheus
+```
+
+- Service routine
+```service
+[Unit]
+Description=Prometheus Server
+Documentation=https://prometheus.io/docs/introduction/overview/
+After=network-online.target
+
+[Service]
+User=red
+Restart=on-failure
+
+ExecStart=/prometheus/prometheus \
+  --config.file=/prometheus/prometheus.yml \
+  --storage.tsdb.path=/prometheus/data
+
+[Install]
+WantedBy=multi-user.target
+```
+Prometheus should be exposed in port ```9090```.
+To view logs ```journalctl -u prometheus```.
+
+### Node Exporter Installation
+The documentaion is modified for Raspberry PI (with ARMv7 architecture) from [this great documentation](https://ourcodeworld.com/articles/read/1686/how-to-install-prometheus-node-exporter-on-ubuntu-2004).
+- Installtion
+```bash
+# Install requirements
+sudo apt-get install build-essential
+cd ~/apps/
+
+# Download node_exporter, extract and copy to /usr/local/bin
+wget https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-armv7.tar.gz
+tar xvf tar xvf node_exporter-1.6.1.linux-armv7.tar.gz
+cd node_exporter-1.6.1.linux-armv7
+sudo cp node_exporter /usr/local/bin
+
+
+# Remove the extracted directory
+cd ..
+rm -rf ./node_exporter-1.3.1.linux-amd64
+
+# Create Node Exporter User & set ownership
+sudo useradd --no-create-home --shell /bin/false node_exporter
+sudo chown node_exporter:node_exporter /usr/local/bin/node_exporter
+
+# Create a service. Insert the code mentioned below.
+sudo vim /etc/systemd/system/node_exporter.service
+```
+
+- Service routine
+
+```service
+[Unit]
+Description=Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+```
+
+- Start the service
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable node_exporter
+sudo systemctl start node_exporter
+```
+
+Metrics should now be available at http://192.168.0.200:9100/metrics .
+Also check http://192.168.0.200:9090/targets to have a metrics entry up and running. ![image](https://github.com/reduan2660/home-lab/assets/61122163/efa02588-dec8-4c77-a2eb-ec7f5db02ac3)
+
+
+### Grafana
+Summary of [this official documenation](https://grafana.com/tutorials/install-grafana-on-raspberry-pi/).
+
+- Installtion
+```bash
+wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+echo "deb https://packages.grafana.com/oss/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+sudo apt-get update
+sudo apt-get install -y grafana
+```
+
+- Start the server
+```bash
+sudo systemctl enable grafana-server
+sudo systemctl start grafana-server
+```
+Grafana should be exposed in port ```3000```.
+Default credentils: admin : admin
+
+- Create a new data source. ![image](https://github.com/reduan2660/home-lab/assets/61122163/f80a1d67-421a-462a-be01-32bfe619dee7)
+- Select prometheus. ![image](https://github.com/reduan2660/home-lab/assets/61122163/8fa140e3-58a2-40b2-a2da-3d4ea09b71d2)
+- Give a name and prometheus url. ![image](https://github.com/reduan2660/home-lab/assets/61122163/089dceef-8e05-44c4-aa73-2e71b139971a)
+
+- Import a new dashboard with id ``` 1860 ```. Point to proper data source.
+- System should now be collecting data. ![image](https://github.com/reduan2660/home-lab/assets/61122163/f9d16f77-928c-4718-9dac-46e14f6e1fd1)
+
+### Grafana with nginx reverse proxy
+
+> We'll be setting up grafana behind a domain ```grafana.monitoring``` for our local network.
+
+- Nginx config. Write the following content at ```sudo vim /etc/nginx/sites-available/grafana.monitoring```.
+
+```conf
+server {
+    listen 80;
+    server_name grafana.monitoring;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000; # Proxy to port 3141
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+```
+
+- Create symlink ```sudo ln -s /etc/nginx/sites-available/grafana.monitoring /etc/nginx/sites-enabled/```.
+- Restart nginx ```sudo systemctl restart nginx```.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
