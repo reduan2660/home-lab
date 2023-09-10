@@ -424,7 +424,7 @@ Great!.
 
 ## Self-signed certificate for internal services
 
-> This documentaion is a summary of [this great documentation by Digitial Ocean](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-20-04-1).
+> This documentation is a summary of [this great documentation by Digital Ocean](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-20-04-1).
 
 - Generate certificate.
 ```bash
