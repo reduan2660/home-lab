@@ -4,7 +4,18 @@
 
 > Set up ubuntu server 22.04 lts
 
-> Getting system up-to-date.
+## Table of Contents
+
+1. [Getting system up-to-date](#getting-system-up-to-date)
+2. [Pi-hole with nginx](#pi-hole-with-nginx)
+3. [Pi-VPN with wireguard](#pi-vpn-with-wireguard)
+4. [Monitoring with Prometheus, Grafana](#monitoring-with-prometheus-grafana)
+   - [Prometheus](#prometheus-installation)
+   - [Node Exporter](#node-exporter-installation)
+   - [Grafana](#grafana-with-nginx-reverse-proxy)
+
+## Getting system up-to-date.
+
 ```bash
 sudo apt update
 sudo apt upgrade
@@ -13,6 +24,7 @@ sudo reboot now
 ```
 
 > Everything will stay inside ~/apps directory.
+
 ```bash
 mkdir apps
 ```
@@ -21,18 +33,22 @@ mkdir apps
 
 - Add Dhcp address reservation at 192.168.0.200 for raspberrypi
 - Install pi-hole
+
 ```bash
 curl -sSL https://install.pi-hole.net | sudo bash
 ```
 
 - Changing the lighttpd server port to 3141
-Open the config file
+  Open the config file
+
 ```bash
  sudo vim /etc/lighttpd/lighttpd.conf
 ```
+
 Change `server.port = 3141`
 
 Restart the server
+
 ```bash
 sudo systemctl restart lighttpd
 ```
@@ -45,6 +61,7 @@ Pi-hole admin is now at http://192.168.0.200:3141/admin/ .
 - Nginx reverse proxy to server proxy pass pi.hole to port 3141
 
 Installing nginx
+
 ```bash
 sudo apt install nginx
 sudo systemctl start nginx
@@ -56,11 +73,13 @@ sudo systemctl status nginx
 http://192.168.0.200/ should now serve a default nginx page.
 
 Configuring reverse proxy
+
 ```bash
 sudo vim /etc/nginx/sites-available/pi.hole
 ```
 
-Put the following config 
+Put the following config
+
 ```conf
 server {
     listen 80;
@@ -76,16 +95,19 @@ server {
 ```
 
 Create symlink
+
 ```bash
 sudo ln -s /etc/nginx/sites-available/pi.hole /etc/nginx/sites-enabled/
 ```
 
 Check syntax
+
 ```bash
 sudo nginx -t
 ```
 
 Restart nginx server
+
 ```bash
 sudo systemctl restart nginx
 sudo systemctl status nginx
@@ -94,8 +116,6 @@ sudo systemctl status nginx
 Pi-hole should now be available at http://pi.hole and served with nginx. Great!.
 
 - Add blocklist. Custom blocklist can be found at https://firebog.net/ . After updating run `pihole -g` for the updated adlist to take effect.
-
-
 
 ## [Pi-VPN](https://docs.pivpn.io/) with wireguard
 
@@ -106,23 +126,27 @@ sudo su -
 curl https://raw.githubusercontent.com/pivpn/pivpn/master/auto_install/install.sh | bash
 ```
 
-- Set vpn to be ```wireguard```.
-- Set port to be ```51820```
+- Set vpn to be `wireguard`.
+- Set port to be `51820`
 - Set ad blocking with pi-vpn to be on.
 
 - Reboot the system.
 - Add port forwarding from router to port 51820. ![image](https://github.com/reduan2660/home-lab/assets/61122163/90ce87fd-e8f2-416e-b8ed-7e7317ed6122)
-- Run ``` pivpn -d ``` to check everything is configured properly.
+- Run `pivpn -d` to check everything is configured properly.
 
 Pi-vpn is now configured. Great!.
 
-To add a client ``` pivpn add ```. To view qr codes ``` pivpn -qr ```. Config files should be available at ``` /home/<user>/configs ```.
+To add a client `pivpn add`. To view qr codes `pivpn -qr`. Config files should be available at `/home/<user>/configs`.
 Wireguard client can be found here https://www.wireguard.com/install/ .
 
 ## Monitoring with Prometheus, Grafana
+
 > Some great monitoring resources can be found [here](https://github.com/awesome-foss/awesome-sysadmin#monitoring).
+
 ### Prometheus installation
+
 - Installation
+
 ```bash
 cd ~/Downloads/
 wget https://github.com/prometheus/prometheus/releases/download/v2.37.9/prometheus-2.37.9.linux-armv7.tar.gz
@@ -144,6 +168,7 @@ sudo systemctl status prometheus
 ```
 
 - Service routine
+
 ```service
 [Unit]
 Description=Prometheus Server
@@ -161,12 +186,16 @@ ExecStart=/prometheus/prometheus \
 [Install]
 WantedBy=multi-user.target
 ```
-Prometheus should be exposed in port ```9090```.
-To view logs ```journalctl -u prometheus```.
+
+Prometheus should be exposed in port `9090`.
+To view logs `journalctl -u prometheus`.
 
 ### Node Exporter Installation
+
 The documentation is modified for Raspberry PI (with ARMv7 architecture) from [this great documentation](https://ourcodeworld.com/articles/read/1686/how-to-install-prometheus-node-exporter-on-ubuntu-2004).
+
 - Installation
+
 ```bash
 # Install requirements
 sudo apt-get install build-essential
@@ -212,6 +241,7 @@ WantedBy=multi-user.target
 ```
 
 - Start the service
+
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable node_exporter
@@ -221,11 +251,12 @@ sudo systemctl start node_exporter
 Metrics should now be available at http://192.168.0.200:9100/metrics .
 Also check http://192.168.0.200:9090/targets to have a metrics entry up and running. ![image](https://github.com/reduan2660/home-lab/assets/61122163/efa02588-dec8-4c77-a2eb-ec7f5db02ac3)
 
-
 ### Grafana
+
 Summary of [this official documentation](https://grafana.com/tutorials/install-grafana-on-raspberry-pi/).
 
 - Installation
+
 ```bash
 wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
 echo "deb https://packages.grafana.com/oss/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
@@ -234,25 +265,27 @@ sudo apt-get install -y grafana
 ```
 
 - Start the server
+
 ```bash
 sudo systemctl enable grafana-server
 sudo systemctl start grafana-server
 ```
-Grafana should be exposed in port ```3000```.
+
+Grafana should be exposed in port `3000`.
 Default credentials: admin : admin
 
 - Create a new data source.
 - Select prometheus.
 - Give a name and prometheus url (http://192.168.0.200:9090 or http://localhost:9090).
 
-- Import a new dashboard with id ``` 1860 ```. Point to proper data source.
+- Import a new dashboard with id `1860`. Point to proper data source.
 - System should now be collecting data. ![image](https://github.com/reduan2660/home-lab/assets/61122163/f9d16f77-928c-4718-9dac-46e14f6e1fd1)
 
 ### Grafana with nginx reverse proxy
 
-> We'll be setting up grafana behind a domain ```grafana.monitoring``` for our local network.
+> We'll be setting up grafana behind a domain `grafana.monitoring` for our local network.
 
-- Nginx config. Write the following content at ```sudo vim /etc/nginx/sites-available/grafana.monitoring```.
+- Nginx config. Write the following content at `sudo vim /etc/nginx/sites-available/grafana.monitoring`.
 
 ```conf
 server {
@@ -268,31 +301,8 @@ server {
 }
 ```
 
-- Create symlink ```sudo ln -s /etc/nginx/sites-available/grafana.monitoring /etc/nginx/sites-enabled/```.
-- Restart nginx ```sudo systemctl restart nginx```.
-- Add a new record to pi.hole's dns pointing grafana.monitoring to 192.168.0.200. 
+- Create symlink `sudo ln -s /etc/nginx/sites-available/grafana.monitoring /etc/nginx/sites-enabled/`.
+- Restart nginx `sudo systemctl restart nginx`.
+- Add a new record to pi.hole's dns pointing grafana.monitoring to 192.168.0.200.
 
 Grafana should now be available at http://grafana.monitoring. Great!.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
