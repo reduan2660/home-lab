@@ -112,6 +112,7 @@ curl https://raw.githubusercontent.com/pivpn/pivpn/master/auto_install/install.s
 
 - Reboot the system.
 - Add port forwarding from router to port 51820. ![image](https://github.com/reduan2660/home-lab/assets/61122163/90ce87fd-e8f2-416e-b8ed-7e7317ed6122)
+- Run ``` pivpn -d ``` to check everything is configured properly.
 
 Pi-vpn is now configured. Great!.
 
