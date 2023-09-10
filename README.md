@@ -241,9 +241,9 @@ sudo systemctl start grafana-server
 Grafana should be exposed in port ```3000```.
 Default credentils: admin : admin
 
-- Create a new data source. ![image](https://github.com/reduan2660/home-lab/assets/61122163/f80a1d67-421a-462a-be01-32bfe619dee7)
-- Select prometheus. ![image](https://github.com/reduan2660/home-lab/assets/61122163/8fa140e3-58a2-40b2-a2da-3d4ea09b71d2)
-- Give a name and prometheus url. ![image](https://github.com/reduan2660/home-lab/assets/61122163/089dceef-8e05-44c4-aa73-2e71b139971a)
+- Create a new data source.
+- Select prometheus.
+- Give a name and prometheus url (http://192.168.0.200:9090 or http://localhost:9090).
 
 - Import a new dashboard with id ``` 1860 ```. Point to proper data source.
 - System should now be collecting data. ![image](https://github.com/reduan2660/home-lab/assets/61122163/f9d16f77-928c-4718-9dac-46e14f6e1fd1)
@@ -270,6 +270,9 @@ server {
 
 - Create symlink ```sudo ln -s /etc/nginx/sites-available/grafana.monitoring /etc/nginx/sites-enabled/```.
 - Restart nginx ```sudo systemctl restart nginx```.
+- Add a new record to pi.hole's dns pointing grafana.monitoring to 192.168.0.200. 
+
+Grafana should now be available at http://grafana.monitoring. Great!.
 
 
 
