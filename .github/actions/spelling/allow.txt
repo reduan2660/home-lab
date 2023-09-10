@@ -53,3 +53,16 @@ usr
 xfz
 xvf
 yml
+buildx
+chmod
+CODENAME
+containerd
+dearmor
+dpkg
+keyrings
+neosmemo
+oneshot
+plugin
+podman
+runc
+selfhosted
