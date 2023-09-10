@@ -165,8 +165,8 @@ Prometheus should be exposed in port ```9090```.
 To view logs ```journalctl -u prometheus```.
 
 ### Node Exporter Installation
-The documentaion is modified for Raspberry PI (with ARMv7 architecture) from [this great documentation](https://ourcodeworld.com/articles/read/1686/how-to-install-prometheus-node-exporter-on-ubuntu-2004).
-- Installtion
+The documentation is modified for Raspberry PI (with ARMv7 architecture) from [this great documentation](https://ourcodeworld.com/articles/read/1686/how-to-install-prometheus-node-exporter-on-ubuntu-2004).
+- Installation
 ```bash
 # Install requirements
 sudo apt-get install build-essential
@@ -223,9 +223,9 @@ Also check http://192.168.0.200:9090/targets to have a metrics entry up and runn
 
 
 ### Grafana
-Summary of [this official documenation](https://grafana.com/tutorials/install-grafana-on-raspberry-pi/).
+Summary of [this official documentation](https://grafana.com/tutorials/install-grafana-on-raspberry-pi/).
 
-- Installtion
+- Installation
 ```bash
 wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
 echo "deb https://packages.grafana.com/oss/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
@@ -239,7 +239,7 @@ sudo systemctl enable grafana-server
 sudo systemctl start grafana-server
 ```
 Grafana should be exposed in port ```3000```.
-Default credentils: admin : admin
+Default credentials: admin : admin
 
 - Create a new data source.
 - Select prometheus.
