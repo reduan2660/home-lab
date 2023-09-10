@@ -13,6 +13,7 @@
    - [Prometheus](#prometheus-installation)
    - [Node Exporter](#node-exporter-installation)
    - [Grafana](#grafana-with-nginx-reverse-proxy)
+5. [Memos](#memos)
 
 ## Getting system up-to-date.
 
@@ -306,3 +307,117 @@ server {
 - Add a new record to pi.hole's dns pointing grafana.monitoring to 192.168.0.200.
 
 Grafana should now be available at http://grafana.monitoring. Great!.
+
+
+## Memos
+
+> First step towards data-ownership. Memos is a simple sticky notes app.
+
+> More Resources can be found [here](https://github.com/awesome-selfhosted/awesome-selfhosted#note-taking--editors).
+
+We'll be installing memos with docker compose.
+
+- Installing docker. [Official Documentation](https://docs.docker.com/engine/install/ubuntu/)
+```bash
+for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do sudo apt-get remove $pkg; done
+```
+
+```bash
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+```
+
+```bash
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+- Installing Memos
+```bash
+sudo mkdir /memos
+cd /memos
+sudo vim docker-compose.yml
+```
+Put the following content in the docker-compose.yml file
+
+```yml
+version: "3.0"
+services:
+  memos:
+    image: neosmemo/memos:latest
+    container_name: memos
+    volumes:
+      - ~/.memos/:/var/opt/memos
+    ports:
+      - 5230:5230
+```
+- Write the service at ``` sudo vim /etc/systemd/system/memos.service ```
+Put the following content in the file
+
+```yml
+[Unit]
+Description=Docker Compose Service for memos
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/memos
+ExecStart=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose down
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+
+```
+- Start the service
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable memos
+sudo systemctl start memos
+
+sudo systemctl status memos
+```
+Memos should be running at port ```5230```. And data should be stored at ``` ~/.memos/ ```.
+
+
+We'll be running the memos app at http://mem.os internally. And http://<static-ip/url>/memos externally.
+- Write the following nginx config file at ```sudo vim /etc/nginx/sites-available/memos```.
+```yml
+server {
+    listen 80;
+    server_name mem.os;
+
+    location / {
+        proxy_pass http://127.0.0.1:5230; # Proxy to port 5230
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+```
+
+- Restart nginx ```sudo systemctl restart nginx```.
+- To configure redirection for <static-ip/url>/memos, add the following block of code to <static-ip/url>'s config file.
+```conf
+   location /memos {
+        proxy_pass http://127.0.0.1:5230; # Pointed to memos
+    }
+```
+- Also add port forwarding from 5230 to 5230 from router. If better solution is found, I'll update here.
+
+Memos should be running at port http://mem.os internally and http://<static-ip/url>/memos externally. And data should be stored at ``` ~/.memos/ ```.
+Great!.
