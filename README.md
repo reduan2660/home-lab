@@ -394,7 +394,7 @@ sudo systemctl status memos
 Memos should be running at port ```5230```. And data should be stored at ``` ~/.memos/ ```.
 
 
-We'll be running the memos app at http://mem.os internally. And http://<static-ip/url>/memos externally.
+We'll be running the memos app at http://mem.os internally. And https://memos.<static-ip/url> externally.
 - Write the following nginx config file at ```sudo vim /etc/nginx/sites-available/memos```.
 ```yml
 server {
@@ -411,13 +411,11 @@ server {
 ```
 
 - Restart nginx ```sudo systemctl restart nginx```.
-- To configure redirection for <static-ip/url>/memos, add the following block of code to <static-ip/url>'s config file.
+- To configure https://memos.<static-ip/url> externally, add the following block of code to memos's config file.
 ```conf
-   location /memos {
-        proxy_pass http://127.0.0.1:5230; # Pointed to memos
-    }
+   server_name mem.os memos.<static-ip/url>;
 ```
-- Also add port forwarding from 5230 to 5230 from router. If better solution is found, I'll update here.
+- Add ssl with ```sudo certbot --nginx```.
 
-Memos should be running at port http://mem.os internally and http://<static-ip/url>/memos externally. And data should be stored at ``` ~/.memos/ ```.
+Memos should be running at port http://mem.os internally and http://memos.<static-ip/url> externally. And data should be stored at ``` ~/.memos/ ```.
 Great!.
