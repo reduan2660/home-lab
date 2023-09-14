@@ -13,6 +13,7 @@
    - [Prometheus](#prometheus-installation)
    - [Node Exporter](#node-exporter-installation)
    - [Grafana](#grafana-with-nginx-reverse-proxy)
+   - [SNMP Exporter](#snmp-exporter)
 5. [Memos](#memos)
 6. [Self-signed certificate for internal services](#self-signed-certificate-for-internal-services)
 
@@ -309,7 +310,90 @@ server {
 
 Grafana should now be available at http://grafana.monitoring. Great!.
 
+### SNMP Exporter
 
+- Install & configure SNMP
+   - Install snmp ``` sudo apt-get install snmp snmpd ```
+   - Open ``` sudo vim /etc/snmp/snmpd.conf ``` and update the sysLocation, sysContact variables
+   - Restart ```sudo systemctl restart snmpd```.
+   - Check ```snmpwalk -v 2c -c public localhost```.
+
+- Install snmp exporter
+```bash
+mkdir ~/apps/snmp/
+cd ~/apps/snmp/
+
+wget https://github.com/prometheus/snmp_exporter/releases/download/v0.24.1/snmp_exporter-0.24.1.linux-armv7.tar.gz
+tar xzf ./snmp_exporter-0.24.1.linux-armv7.tar.gz
+
+cd snmp_exporter-0.24.1.linux-armv7/
+sudo cp ./snmp_exporter /usr/local/bin/snmp_exporter
+sudo cp ./snmp.yml /usr/local/bin/snmp.yml
+
+cd /usr/local/bin/
+./snmp_exporter -h
+```
+
+- Create a new user
+```bash
+sudo useradd --system prometheus
+```
+
+- Create a service routine at ```sudo vim /etc/systemd/system/snmp.service``` with the following content
+```service
+[Unit]
+Description=Prometheus SNMP Exporter Service
+After=network.target
+
+[Service]
+Type=simple
+User=prometheus
+ExecStart=/usr/local/bin/snmp_exporter --config.file="/usr/local/bin/snmp.yml"
+
+[Install]
+WantedBy=multi-user.target
+```
+- Start the service
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable snmp
+sudo systemctl start snmp
+sudo systemctl status snmp
+```
+
+SNMP exporter should spit metrics at port ```9116```.
+
+- Add following job to prometheus ```sudo vim /prometheus/prometheus.yml```
+
+```yml
+   - job_name: 'snmp'
+    static_configs:
+      - targets:
+        - localhost # SNMP device.
+    metrics_path: /snmp
+    params:
+      auth: [public_v2]
+      module: [if_mib]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9116  # The SNMP exporter's real hostname:port.
+
+
+  - job_name: 'snmp_exporter'
+    static_configs:
+    - targets: ['localhost:9116']
+```
+
+> A new snmp entry is up at http://192.168.0.200:9090/targets. ![image](https://github.com/reduan2660/home-lab/assets/61122163/8675c479-aa24-44ff-88ac-42e26cd3eede)
+
+- Setup grafana deshboard
+- Import ```12197``` template dashboard.
+- I'll update if better config/dashboard is found, 
+ 
 ## Memos
 
 > First step towards data-ownership. Memos is a simple sticky notes app.
