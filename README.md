@@ -392,8 +392,44 @@ SNMP exporter should spit metrics at port ```9116```.
 
 - Setup grafana dashboard
 - Import ```12197``` template dashboard.
-- I'll update if better config/dashboard is found, 
- 
+- I'll update if better config/dashboard is found.
+
+### NGINX Exporter
+- [NGINX-to-Prometheus log file exporter](https://github.com/martin-helmich/prometheus-nginxlog-exporter)
+- [Install exporter](https://github.com/martin-helmich/prometheus-nginxlog-exporter#deb-and-rpm-packages)
+```bash
+cd ~/apps/
+wget https://github.com/martin-helmich/prometheus-nginxlog-exporter/releases/download/v1.11.0/prometheus-nginxlog-exporter_1.11.0_linux_arm64.deb
+sudo apt install ./prometheus-nginxlog-exporter_1.11.0_linux_arm64.deb
+sudo systemctl status prometheus-nginxlog-exporter
+```
+If any error occurs make sure /var/log/nginx/access.log has the same group the service.
+
+- Add following job to prometheus ```sudo vim /prometheus/prometheus.yml```
+```yml
+
+  - job_name: 'nginx_exporter'
+    static_configs:
+    - targets: ['localhost:4040']
+```
+- Restart prometheus ```sudo systemctl restart prometheus```
+- A new nginx_exporter entry is up at http://192.168.0.200:9090/targets.
+
+- Custom conifg ```sudo vim /etc/prometheus-nginxlog-exporter.hcl```.
+```
+format = "$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\" \"$http_x_forwarded_for\" \"$geoip_country_code\" $upstream_addr $upstream_response_time"
+```
+
+- Modify access log format with the following code at ```/etc/nginx/nginx.conf```.
+```
+log_format nginx_exporter '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" "$geoip_country_code" $upstream_addr';
+access_log /var/log/nginx/access.log nginx_exporter;
+```
+- Install nginx add-ons ```sudo apt-get install nginx-extras```.
+
+  
+- Import the ```6482``` dashboard to grafana.
+- Dashboard and logging needs to better.
 ## Memos
 
 > First step towards data-ownership. Memos is a simple sticky notes app.
