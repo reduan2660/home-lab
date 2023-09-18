@@ -415,7 +415,7 @@ If any error occurs make sure /var/log/nginx/access.log has the same group the s
 - Restart prometheus ```sudo systemctl restart prometheus```
 - A new nginx_exporter entry is up at http://192.168.0.200:9090/targets.
 
-- Custom conifg ```sudo vim /etc/prometheus-nginxlog-exporter.hcl```.
+- Custom config ```sudo vim /etc/prometheus-nginxlog-exporter.hcl```.
 ```
 format = "$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\" \"$http_x_forwarded_for\" \"$geoip_country_code\" $upstream_addr $http_response_time_seconds"
 ```
