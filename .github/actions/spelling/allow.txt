@@ -89,3 +89,10 @@ TLSv
 uncomment
 uri
 XSS
+eede
+hostname
+snmp
+snmpd
+snmpwalk
+sys
+xzf
