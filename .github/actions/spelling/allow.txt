@@ -96,3 +96,9 @@ snmpd
 snmpwalk
 sys
 xzf
+geoip
+helmich
+nginxlog
+openvpn
+referer
+ventura
