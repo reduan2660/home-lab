@@ -129,7 +129,7 @@ sudo su -
 curl https://raw.githubusercontent.com/pivpn/pivpn/master/auto_install/install.sh | bash
 ```
 
-- Set vpn to be `wireguard`.
+- Set vpn to be `openvpn`. (wireguard mac client has issues with connectivity on ventura.)
 - Set port to be `51820`
 - Set ad blocking with pi-vpn to be on.
 
@@ -390,7 +390,7 @@ SNMP exporter should spit metrics at port ```9116```.
 
 > A new snmp entry is up at http://192.168.0.200:9090/targets. ![image](https://github.com/reduan2660/home-lab/assets/61122163/8675c479-aa24-44ff-88ac-42e26cd3eede)
 
-- Setup grafana deshboard
+- Setup grafana dashboard
 - Import ```12197``` template dashboard.
 - I'll update if better config/dashboard is found, 
  
