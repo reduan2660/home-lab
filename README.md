@@ -417,12 +417,12 @@ If any error occurs make sure /var/log/nginx/access.log has the same group the s
 
 - Custom conifg ```sudo vim /etc/prometheus-nginxlog-exporter.hcl```.
 ```
-format = "$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\" \"$http_x_forwarded_for\" \"$geoip_country_code\" $upstream_addr $upstream_response_time"
+format = "$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\" \"$http_x_forwarded_for\" \"$geoip_country_code\" $upstream_addr $http_response_time_seconds"
 ```
 
 - Modify access log format with the following code at ```/etc/nginx/nginx.conf```.
 ```
-log_format nginx_exporter '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" "$geoip_country_code" $upstream_addr';
+log_format nginx_exporter '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" "$geoip_country_code" $http_response_time_seconds';
 access_log /var/log/nginx/access.log nginx_exporter;
 ```
 - Install nginx add-ons ```sudo apt-get install nginx-extras```.
