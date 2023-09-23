@@ -630,7 +630,7 @@ services:
       - 4200:80
     container_name: excalidraw
 ```
-- Create a service.
+- Create a service at ``` sudo vim /etc/systemd/system/excalidraw.service ```
 ```bash
 [Unit]
 Description=Docker Compose Service for ExcaliDraw
@@ -649,6 +649,15 @@ RestartSec=3
 [Install]
 WantedBy=multi-user.target
 
+```
+
+- Enable and Start the service.
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable excalidraw
+sudo systemctl start excalidraw
+
+sudo systemctl status excalidraw
 ```
 
 ExcaliDraw should be ready at port 4200. But we'll add an nginx block and DNS record to host in internally at excali.draw. Great!
