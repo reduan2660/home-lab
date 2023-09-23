@@ -16,6 +16,7 @@
    - [SNMP Exporter](#snmp-exporter)
 5. [Memos](#memos)
 6. [Self-signed certificate for internal services](#self-signed-certificate-for-internal-services)
+7. [ExcaliDraw](#excalidraw)
 
 ## Getting system up-to-date.
 
@@ -612,3 +613,42 @@ server {
 ```
 
 Self-signed certificate is now configured for internal network. Great!.
+
+
+## ExcaliDraw
+
+- Excalidraw doesn't have an official arm image yet, but [this image](https://hub.docker.com/r/thisisbenny/excalidraw/tags) from thisisbenny seems to work.
+- Create a docker-compose.yaml file at ```vim /excalidraw/docker-compose.yaml``` with the following content.
+```yaml
+version: "3.8"
+
+services:
+  excalidraw:
+    image: thisisbenny/excalidraw:latest
+    restart: always
+    ports:
+      - 4200:80
+    container_name: excalidraw
+```
+- Create a service.
+```bash
+[Unit]
+Description=Docker Compose Service for ExcaliDraw
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/excalidraw
+ExecStart=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose down
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+
+```
+
+ExcaliDraw should be ready at port 4200. But we'll add an nginx block and DNS record to host in internally at excali.draw. Great!
