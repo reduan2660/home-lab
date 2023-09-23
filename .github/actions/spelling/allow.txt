@@ -102,3 +102,7 @@ nginxlog
 openvpn
 referer
 ventura
+excali
+excalidraw
+thisisbenny
+yaml
