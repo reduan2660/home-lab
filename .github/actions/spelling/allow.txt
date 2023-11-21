@@ -106,3 +106,10 @@ excali
 excalidraw
 thisisbenny
 yaml
+Drewsif
+img
+lsblk
+mmcblk
+pishrink
+sda
+tomshardware
