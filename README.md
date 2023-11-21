@@ -17,6 +17,7 @@
 5. [Memos](#memos)
 6. [Self-signed certificate for internal services](#self-signed-certificate-for-internal-services)
 7. [ExcaliDraw](#excalidraw)
+8. [Backup](#backup)
 
 ## Getting system up-to-date.
 
@@ -661,3 +662,37 @@ sudo systemctl status excalidraw
 ```
 
 ExcaliDraw should be ready at port 4200. But we'll add an nginx block and DNS record to host in internally at excali.draw. Great!
+
+
+
+
+## Backup
+
+Creating an image of pi's currenct state. [We'll be following the great article from tom's hardware](https://www.tomshardware.com/how-to/back-up-raspberry-pi-as-disk-image).
+
+0. Plug in a flash drive of the boot memory size.
+
+1. Install ```pi-shrink```
+```
+cd apps/pishrink
+wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
+sudo chmod +x pishrink.sh
+sudo mv pishrink.sh /usr/local/bin
+```
+
+2. Check the mount point path of your USB drive by entering ```lsblk```
+
+Output:
+```
+sda           8:0    1  57.8G  0 disk 
+└─sda1        8:1    1  57.8G  0 part 
+mmcblk0     179:0    0  29.8G  0 disk 
+├─mmcblk0p1 179:1    0   256M  0 part /boot/firmware
+└─mmcblk0p2 179:2    0  29.5G  0 part /
+```
+
+3. If the drive is not mounted, mount manually ```mount /dev/sda1 /media```.
+4. Copy pi into an image: ```dd if=/dev/mmcblk0 of=/media/<image-name>.img bs=1M status=progress```.
+5. Shring the image ```sudo pishrink.sh -z /media/<image-name>.img```
+
+That's it. This image can now be booted from with Raspberry pi imager.
