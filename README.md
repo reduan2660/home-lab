@@ -208,7 +208,7 @@ cd ~/apps/
 
 # Download node_exporter, extract and copy to /usr/local/bin
 wget https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-armv7.tar.gz
-tar xvf tar xvf node_exporter-1.6.1.linux-armv7.tar.gz
+tar xvf node_exporter-1.6.1.linux-armv7.tar.gz
 cd node_exporter-1.6.1.linux-armv7
 sudo cp node_exporter /usr/local/bin
 
