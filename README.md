@@ -668,7 +668,7 @@ ExcaliDraw should be ready at port 4200. But we'll add an nginx block and DNS re
 
 ## Backup
 
-Creating an image of pi's currenct state. [We'll be following the great article from tom's hardware](https://www.tomshardware.com/how-to/back-up-raspberry-pi-as-disk-image).
+Creating an image of pi's current state. [We'll be following the great article from tom's hardware](https://www.tomshardware.com/how-to/back-up-raspberry-pi-as-disk-image).
 
 0. Plug in a flash drive of the boot memory size.
 
