@@ -693,6 +693,6 @@ mmcblk0     179:0    0  29.8G  0 disk
 
 3. If the drive is not mounted, mount manually ```mount /dev/sda1 /media```.
 4. Copy pi into an image: ```dd if=/dev/mmcblk0 of=/media/<image-name>.img bs=1M status=progress```.
-5. Shring the image ```sudo pishrink.sh -z /media/<image-name>.img```
+5. Shrink the image ```sudo pishrink.sh -z /media/<image-name>.img```
 
 That's it. This image can now be booted from with Raspberry pi imager.
